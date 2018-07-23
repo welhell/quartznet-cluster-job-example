@@ -4,7 +4,7 @@ namespace QuartzCluster.Entities
 {
   public class Message
   {
-    public Message(Guid id, DateTime dateTime,int time )
+    public Message(Guid id, DateTime dateTime, int time)
     {
       this.Id = id;
       this.DateTime = dateTime;
@@ -12,6 +12,7 @@ namespace QuartzCluster.Entities
     }
 
     public Guid Id { get; }
+    
     public DateTime DateTime { get; }
 
     public int Time { get; }

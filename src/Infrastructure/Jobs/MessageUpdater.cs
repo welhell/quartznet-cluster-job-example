@@ -4,6 +4,7 @@ using Quartz;
 using QuartzCluster.Entities;
 using QuartzCluster;
 using QuartzCluster.Repositories;
+using System.Diagnostics.Contracts;
 
 namespace QuartzCluster.Jobs
 {
@@ -15,11 +16,15 @@ namespace QuartzCluster.Jobs
 
     public MessageUpdater(IMessageRepository repostory)
     {
+      Contract.Requires(repository != null);
+
       this.repository = repostory;
     }
 
     public async Task Execute(IJobExecutionContext context)
     {
+      Contract.Requires(context != null);
+      
       var (dateTime, time) = context.JobDetail.JobDataMap.GetExecutionData();
       Console.WriteLine($"The job is running at {dateTime} for time{time}");
       await this.AddMessageAsync(dateTime, time).ConfigureAwait(false);

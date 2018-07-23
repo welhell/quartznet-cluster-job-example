@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.Contracts;
 using Quartz;
 
 namespace QuartzCluster
@@ -9,6 +10,8 @@ namespace QuartzCluster
     private const string TIME = "k_time";
     public static (DateTime, int) GetExecutionData(this JobDataMap data)
     {
+      Contract.Requires(data != null);
+
       var time = data.GetInt(TIME);
       var datetime = data.GetDateTime(CURRENT_DATE_TIME);
       return (datetime, time);
@@ -16,6 +19,8 @@ namespace QuartzCluster
 
     public static void UpdateExecutionData(this JobDataMap data)
     {
+      Contract.Requires(data != null);
+
       var time = data.GetInt(TIME) + 1;
       data.Put(TIME, time);
       data.Put(CURRENT_DATE_TIME, DateTime.Now);
@@ -23,6 +28,8 @@ namespace QuartzCluster
 
     public static void SetExecutionData(this JobDataMap data)
     {
+      Contract.Requires(data != null);
+
       data.Put(TIME, 0);
       data.Put(CURRENT_DATE_TIME, DateTime.Now);
     }

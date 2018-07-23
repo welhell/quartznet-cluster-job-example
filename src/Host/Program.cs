@@ -11,18 +11,19 @@ using System.Configuration;
 using System.Collections.Specialized;
 using QuartzCluster;
 using Quartz.Spi;
+using Castle.Windsor.Installer;
 
 namespace QuartzCluster.Host
 {
   class Program
   {
     static void Main(string[] args)
-    {     
-      Console.WriteLine("Starting ..."); 
+    {
+      Console.WriteLine("Starting ...");
       var scheduler = CreateAndConfigureSchedulerAsync().Result;
       scheduler.Start().Wait();
       Console.WriteLine("Press a key to exit ...");
-      Console.ReadKey();
+      Console.ReadLine();
       scheduler.Shutdown().Wait();
     }
 
@@ -30,33 +31,17 @@ namespace QuartzCluster.Host
     {
       var runEvery = ConfigurationManager.AppSettings["runEvery"];
       var jobData = new JobDataMap();
-       jobData.SetExecutionData();
+      jobData.SetExecutionData();
       return SchedulerBuilder.Create()
                              .WithJobFactory(CreateJobFactory())
-                             .ScheduleJob<MessageUpdater>(runEvery,jobData)
+                             .ScheduleJob<MessageUpdater>(runEvery, jobData)
                              .BuildAsync();
     }
 
     private static IJobFactory CreateJobFactory()
     {
-       var container = CreateAndConfigureContainer();
+      var container = new WindsorContainer().Install(new []{new RegisterServices()});
       return new WindsorJobFactory(container);
-    }
-    
-    public static IWindsorContainer CreateAndConfigureContainer()
-    {
-      var container = new WindsorContainer();
-      container.Register(Component.For<IMessageRepository>()
-                                  .UsingFactoryMethod(() =>
-                                  {
-                                    var url = MongoUrl.Create(ConfigurationManager.ConnectionStrings["messagesMongoDB"].ConnectionString);
-                                    return new MongoMesageRepository(url);
-                                  })
-                                  .LifestyleSingleton())
-               .Register(Component.For<MessageUpdater>()
-                                  .ImplementedBy<MessageUpdater>()
-                                  .LifestyleSingleton());
-      return container;
     }
   }
 }

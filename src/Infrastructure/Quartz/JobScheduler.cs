@@ -1,12 +1,12 @@
 using System;
+using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using Quartz;
 
 namespace QuartzCluster
 {
-  class JobScheduler
+  internal class JobScheduler
   {
-
     private readonly Type type;
     private readonly string runEvery;
     private readonly bool mustReplace;
@@ -15,6 +15,10 @@ namespace QuartzCluster
 
     public JobScheduler(Type type, string runEvery, JobDataMap data, bool mustReplace)
     {
+      Contract.Requires(type != null);
+      Contract.Requires(string.IsNullOrEmpty(runEvery));
+      Contract.Requires(data != null);
+
       this.type = type;
       this.runEvery = runEvery;
       this.mustReplace = mustReplace;
@@ -23,7 +27,9 @@ namespace QuartzCluster
     }
     public async Task ScheduleAsync(IScheduler scheduler)
     {
-      await this.DeleteJobIfHaveToAsync(scheduler).ConfigureAwait(false);    
+      Contract.Requires(scheduler != null);
+
+      await this.DeleteJobIfHaveToAsync(scheduler).ConfigureAwait(false);
       await this.TryToScheduleAsync(scheduler).ConfigureAwait(false);
     }
 
